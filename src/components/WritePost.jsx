@@ -17,24 +17,33 @@ const WritePost = () => {
   const [showvisPopup, setVisShowPopup] = useState(false);
   const [chosenEmoji, setChosenEmoji] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [selectedDocument, setSelectedDocument] = useState(null);
 
   const handleVisibilitySelect = (option) => {
     setVisibilityText(option);
     setShowPopup(false);
   };
+  const fileType = "Documents";
+  const handleFileSelect = (file) => {
+    if (fileType === "Images") {
+      setSelectedImage(file);
+    } else if (fileType === "Videos") {
+      setSelectedVideo(file);
+    } else if (fileType === "Documents") {
+      setSelectedDocument(file);
+    }
 
-  const handleImageSelect = (image) => {
-    setSelectedImage(image);
-    setShowPopup2(false); // Close the modal after selecting the image
+    console.log("file selected :--- ", file.name);
+
+    setShowPopup2(false); // Close the modal after selecting the file
   };
 
   const onEmojiClick = (event, emojiObject) => {
-    console.log("Emoji obj : ", emojiObject);
     setChosenEmoji(emojiObject.target);
     setArticleText((prevText) => prevText + chosenEmoji);
     setShowPopup(false);
   };
-
   return (
     <>
       <div className='px-3'>
@@ -58,7 +67,7 @@ const WritePost = () => {
                 </span>
               </h1>
               {showvisPopup && (
-                <ul className='absolute bg-white border border-gray-300 rounded mt-1 py-2 w-32'>
+                <ul className='absolute bg-white border border-gray-300 z-10 rounded mt-1 py-2 w-32'>
                   <li
                     className='px-4 py-2 hover:bg-gray-100 cursor-pointer'
                     onClick={() => handleVisibilitySelect("Everyone")}
@@ -108,7 +117,8 @@ const WritePost = () => {
               <div className='bg-white p-4 rounded-lg'>
                 <EditPhoto
                   onClose={() => setShowPopup2(false)}
-                  onImageSelect={handleImageSelect}
+                  onFileSelect={handleFileSelect}
+                  fileType={"Documents"}
                 />
               </div>
             </div>
@@ -116,11 +126,36 @@ const WritePost = () => {
 
           {selectedImage && (
             <div className='relative w-full h-56 mt-4 overflow-auto'>
+              <div className='mt-2 px-3 font-semibold text-gray-600'>
+                {selectedImage.name}
+              </div>
               <img
                 src={URL.createObjectURL(selectedImage)}
                 alt='Selected Image'
-                className='w-full h-full object-contain'
+                className='w-full h-auto'
               />
+            </div>
+          )}
+
+          {selectedVideo && (
+            <div className='relative w-full h-56 mt-4 overflow-hidden'>
+              <div className='mt-2 px-3 font-semibold text-gray-600'>
+                {selectedVideo.name}
+              </div>
+              <img
+                src={selectedVideo.thumbnailUrl}
+                alt='Video Thumbnail'
+                className='w-full h-auto'
+              />
+            </div>
+          )}
+
+          {selectedDocument && (
+            <div className='relative w-full h-20 mt-4 overflow-hidden'>
+              <div className='mt-2 px-3 font-semibold text-gray-600'>
+                {selectedDocument.name}
+              </div>
+              <IoDocumentText className='text-6xl text-gray-600' />
             </div>
           )}
         </div>
@@ -157,7 +192,7 @@ const WritePost = () => {
             className='bg-gray-100 rounded-full p-3 hover:shadow-md shadow-black hover:bg-gray-200
           '
           >
-            <IoDocumentText className='text-gray-700' />
+            <IoDocumentText />
           </span>
           <span
             className='bg-gray-100 rounded-full p-3 hover:shadow-md shadow-black hover:bg-gray-200
