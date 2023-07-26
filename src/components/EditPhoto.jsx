@@ -1,11 +1,16 @@
 import React, { useState } from "react";
 
-const EditPhoto = () => {
+const EditPhoto = ({ onClose, onImageSelect }) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setSelectedImage(file);
+  };
+
+  const handleDone = () => {
+    onImageSelect(selectedImage);
+    onClose();
   };
 
   return (
@@ -28,7 +33,7 @@ const EditPhoto = () => {
             <img
               src={URL.createObjectURL(selectedImage)}
               alt='Selected Image'
-              className='w-full h-auto '
+              className='w-full h-auto'
             />
           </div>
         ) : (
@@ -37,15 +42,20 @@ const EditPhoto = () => {
       </label>
       <hr className='mb-2 text-black' />
       <div className='flex justify-end items-center gap-3 m-2'>
-        <button className='px-4 py-1 bg-blue-400 rounded-2xl hover:bg-blue-500 items-center'>
+        <button
+          className='px-4 py-1 bg-blue-400 rounded-2xl hover:bg-blue-500 items-center'
+          onClick={onClose}
+        >
           Back
         </button>
         <button
-          className={`px-4 py-1   rounded-2xl items-center ${
+          className={`px-4 py-1 rounded-2xl items-center ${
             selectedImage
-              ? "bg-blue-400 rounded-2xl hover:bg-blue-500"
+              ? "bg-blue-400 hover:bg-blue-500"
               : "bg-gray-200 hover:shadow-xl pointer-events-none"
           }`}
+          onClick={handleDone}
+          disabled={!selectedImage}
         >
           Done
         </button>
