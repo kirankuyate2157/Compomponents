@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import EditPhoto from "./EditPhoto";
-
 import Picker from "emoji-picker-react";
 import { BsCameraVideoFill } from "react-icons/bs";
 import { BiSolidChevronDown, BiTime } from "react-icons/bi";
@@ -17,12 +16,7 @@ const WritePost = () => {
   const [showPopup2, setShowPopup2] = useState(false);
   const [showvisPopup, setVisShowPopup] = useState(false);
   const [chosenEmoji, setChosenEmoji] = useState(null);
-  const [showEditPhoto, setShowEditPhoto] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-
-  const handleShowEditPhoto = () => {
-    setShowEditPhoto(!showEditPhoto);
-  };
 
   const handleVisibilitySelect = (option) => {
     setVisibilityText(option);
@@ -31,6 +25,7 @@ const WritePost = () => {
 
   const handleImageSelect = (image) => {
     setSelectedImage(image);
+    setShowPopup2(false); // Close the modal after selecting the image
   };
 
   const onEmojiClick = (event, emojiObject) => {
@@ -107,11 +102,16 @@ const WritePost = () => {
               }}
             />
           </div>
+          {/* Show the EditPhoto modal when 'showPopup2' is true */}
           {showPopup2 && (
-            <EditPhoto
-              onClose={() => setShowPopup2(false)}
-              onImageSelect={handleImageSelect}
-            />
+            <div className='fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-70'>
+              <div className='bg-white p-4 rounded-lg'>
+                <EditPhoto
+                  onClose={() => setShowPopup2(false)}
+                  onImageSelect={handleImageSelect}
+                />
+              </div>
+            </div>
           )}
 
           {selectedImage && (
@@ -140,7 +140,7 @@ const WritePost = () => {
             </div>
           )}
         </div>
-        <div className='flex gap-3 text-3xl text-gray-600 '>
+        <div className='flex gap-3 text-3xl text-gray-500 '>
           <span
             className='bg-gray-100 rounded-full p-3 hover:bg-gray-200  hover:shadow-md shadow-black'
             onClick={() => setShowPopup2(!showPopup2)}
@@ -157,6 +157,12 @@ const WritePost = () => {
             className='bg-gray-100 rounded-full p-3 hover:shadow-md shadow-black hover:bg-gray-200
           '
           >
+            <IoDocumentText className='text-gray-700' />
+          </span>
+          <span
+            className='bg-gray-100 rounded-full p-3 hover:shadow-md shadow-black hover:bg-gray-200
+          '
+          >
             <FaCertificate />
           </span>
           <span
@@ -164,12 +170,6 @@ const WritePost = () => {
           '
           >
             <MdWork />
-          </span>
-          <span
-            className='bg-gray-100 rounded-full p-3 hover:shadow-md shadow-black hover:bg-gray-200
-          '
-          >
-            <IoDocumentText className='text-gray-700' />
           </span>
         </div>
         <hr className='mt-2 text-black' />
@@ -182,7 +182,6 @@ const WritePost = () => {
           </button>
         </div>
       </div>
-      {showEditPhoto && <EditPhoto onImageSelect={handleImageSelect} />}
     </>
   );
 };
