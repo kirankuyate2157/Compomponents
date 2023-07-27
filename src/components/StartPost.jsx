@@ -1,16 +1,19 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { CiImageOn } from "react-icons/ci";
 import { BiSolidVideos } from "react-icons/bi";
 import { IoCalendar } from "react-icons/io5";
 import { GrArticle } from "react-icons/gr";
-const Media = ({ Icons, title, colors = "red" }) => {
+
+const Media = ({ Icons, title, colors = "red", onClick }) => {
   return (
     <>
       <div
-        className={`flex justify-center p-1 gap-2 items-center text-lg rounded-md`}
+        className={`flex justify-center p-3 hover:bg-gray-100 cursor-pointer gap-1 md:gap-2 items-center text-sm md:text-lg rounded-md`}
+        onClick={onClick}
       >
         <Icons
-          className={`w-[45px] h-full text-${colors}-600`}
+          className={`w-[30px] md:w-[56px] h-auto text-${colors}-600`}
           style={{ color: colors }}
         />
         <span className='w-full'>{title}</span>
@@ -20,11 +23,17 @@ const Media = ({ Icons, title, colors = "red" }) => {
 };
 
 const StartPost = () => {
-  const [text, setText] = useState("");
+  const [documentType, setDocumentType] = useState("");
+  const navigate = useNavigate();
+  const handleDocumentClick = (type) => {
+    setDocumentType(type);
+    navigate(`/write-post/${type}/true`); // Use route parameters format
+  };
+
   return (
     <>
-      <div className='  my-10 rounded-xl border'>
-        <div className='flex  gap-3 mx-5 py-2'>
+      <div className='my-10 rounded-xl border'>
+        <div className='flex gap-3 mx-5 py-2'>
           <div>
             <img
               src='https://avatars.githubusercontent.com/u/84271800?v=4'
@@ -32,23 +41,35 @@ const StartPost = () => {
               className='w-[60px] rounded-full'
             />
           </div>
-          <input
-            value={text}
-            placeholder='Start post ..'
-            onChange={(e) => {
-              setText(e.target.value);
-            }}
-            className='w-full rounded-full text-lg border-[1px] border-gray-300  px-5'
-          />
+          <Link
+            to='/write-post'
+            className='w-full h-auto hover:bg-gray-100 p-1 rounded-full cursor-pointer'
+          >
+            <h5 className='w-full rounded-full items-center flex h-full text-lg border-[1px] input-none focus:outline-none border-gray-300 px-5'>
+              Start post ..
+            </h5>
+          </Link>
         </div>
-        <div className='m-2 pb-1 flex w-full justify-around '>
-          <Media title={"Photo"} Icons={CiImageOn} />
-          <Media title={"Video"} Icons={BiSolidVideos} />
-          <Media title={"Events"} Icons={IoCalendar} />
+        <div className='flex w-full justify-around mb-2 '>
+          <Media
+            title={"Photo"}
+            Icons={CiImageOn}
+            onClick={() => handleDocumentClick("Images")}
+          />
+          <Media
+            title={"Video"}
+            Icons={BiSolidVideos}
+            onClick={() => handleDocumentClick("Videos")}
+          />
+          <Media
+            title={"Articles"}
+            Icons={GrArticle}
+            onClick={() => handleDocumentClick("Documents")}
+          />
           <Media
             title={"Events"}
-            Icons={GrArticle}
-            className='text-green-400'
+            Icons={IoCalendar}
+            onClick={() => handleDocumentClick("Events")}
           />
         </div>
       </div>

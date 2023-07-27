@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import EditPhoto from "./EditPhoto";
 import Picker from "emoji-picker-react";
 import { BsCameraVideoFill } from "react-icons/bs";
@@ -39,6 +40,25 @@ const WritePost = () => {
   const [editingFileName, setEditingFileName] = useState(null);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const videoRef = useRef(null);
+
+  const { documentType, showPopup3 } = useParams();
+  console.log("doc1 : ", documentType);
+  console.log("doc2 : ", showPopup3);
+
+  console.log("doc :", documentType);
+  useEffect(() => {
+    if (documentType && showPopup3) {
+      setShowPopup2(true);
+      setFileType(documentType);
+      console.log("Parameters from routes: ", documentType);
+    }
+  }, [documentType, showPopup3]); // Update the dependency array
+
+  const navigate = useNavigate();
+  const handleDocumentClick = (type) => {
+    navigate(`/write-post/${type}/true`); // Use route parameters format
+  };
+
   const handleVideoClick = (event) => {
     setVideoPlaying((prevState) => !prevState);
   };
@@ -323,6 +343,7 @@ const WritePost = () => {
           <span
             className='bg-gray-100 rounded-full p-2 md:p-3 hover:bg-gray-200 hover:shadow-md shadow-black'
             onClick={() => {
+              handleDocumentClick("Images");
               setShowPopup2(!showPopup2);
               setFileType("Images");
             }}
@@ -332,6 +353,7 @@ const WritePost = () => {
           <span
             className='bg-gray-100 rounded-full p-2 md:p-3 hover:shadow-md shadow-black hover:bg-gray-200'
             onClick={() => {
+              handleDocumentClick("Videos");
               setShowPopup2(!showPopup2);
               setFileType("Videos");
             }}
@@ -341,16 +363,31 @@ const WritePost = () => {
           <span
             className='bg-gray-100 rounded-full p-2 md:p-3 hover:shadow-md shadow-black hover:bg-gray-200'
             onClick={() => {
+              handleDocumentClick("Documents");
               setShowPopup2(!showPopup2);
               setFileType("Documents");
             }}
           >
             <IoDocumentText size={20} />
           </span>
-          <span className='bg-gray-100 rounded-full p-2 md:p-3 hover:shadow-md shadow-black hover:bg-gray-200'>
+          <span
+            className='bg-gray-100 rounded-full p-2 md:p-3 hover:shadow-md shadow-black hover:bg-gray-200'
+            onClick={() => {
+              handleDocumentClick("Documents");
+              setShowPopup2(!showPopup2);
+              setFileType("Documents");
+            }}
+          >
             <FaCertificate size={20} />
           </span>
-          <span className='bg-gray-100 rounded-full p-2 md:p-3 hover:shadow-md shadow-black hover:bg-gray-200'>
+          <span
+            className='bg-gray-100 rounded-full p-2 md:p-3 hover:shadow-md shadow-black hover:bg-gray-200'
+            onClick={() => {
+              handleDocumentClick("Documents");
+              setShowPopup2(!showPopup2);
+              setFileType("Documents");
+            }}
+          >
             <MdWork size={20} />
           </span>
         </div>
