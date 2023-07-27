@@ -32,7 +32,7 @@ const StartPost = () => {
 
   return (
     <>
-      <div className='my-10 rounded-xl border'>
+      <div className='my-10 mx-2 rounded-xl bg-white border'>
         <div className='flex gap-3 mx-5 py-2'>
           <div>
             <img
