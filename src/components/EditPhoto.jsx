@@ -9,36 +9,7 @@ const EditPhoto = ({ onClose, onFileSelect, fileType }) => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
-
-    // Set initial preview for video and PDF files
-    if (fileType === "Videos" && file.type.startsWith("video/")) {
-      createVideoThumbnail(file);
-    } else if (fileType === "Documents" && file.type === "application/pdf") {
-      createDocumentThumbnail();
-    }
   };
-
-  const createVideoThumbnail = (file) => {
-    // Create video thumbnail using a <video> element
-    const video = document.createElement("video");
-    video.src = URL.createObjectURL(file);
-    video.currentTime = 1; // Show the frame at 1 second
-    video.addEventListener("loadeddata", () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const thumbnailUrl = canvas.toDataURL();
-      setInitialPreview(thumbnailUrl);
-    });
-  };
-
-  const createDocumentThumbnail = () => {
-    // For documents, just use a generic icon
-    setInitialPreview(null); // No preview for documents
-  };
-
   const handleDone = () => {
     onFileSelect(selectedFile);
     onClose();
@@ -76,11 +47,18 @@ const EditPhoto = ({ onClose, onFileSelect, fileType }) => {
             ) : (
               <div className='flex items-center justify-center h-full'>
                 {fileType === "Videos" ? (
-                  <img
-                    src={initialPreview}
-                    alt='Video Thumbnail'
-                    className='w-full h-auto'
-                  />
+                  <>
+                    <video
+                      src={URL.createObjectURL(selectedFile)}
+                      className='w-full h-full object-cover'
+                      controls
+                      autoPlay
+                      muted
+                    ></video>
+                    <div className='absolute inset-0 flex justify-center items-center'>
+                      <BsCameraVideoFill className='text-6xl text-white' />
+                    </div>
+                  </>
                 ) : fileType === "Documents" ? (
                   <IoDocumentText className='text-6xl text-gray-600' />
                 ) : null}
