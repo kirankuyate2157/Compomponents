@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 
 import myphoto from "./../assets/myphoto.jpg";
@@ -57,7 +57,9 @@ const Post = () => {
 
   const handleReactionLeave = () => {
     if (!isLiked) {
-      setReactionOptionsVisible(false);
+      setTimeout(() => {
+        setReactionOptionsVisible(false);
+      }, 2000); // 2 seconds delay
     }
   };
 
@@ -70,30 +72,48 @@ const Post = () => {
       { label: "Insightful", emoji: "🧠" },
     ];
 
+    const [hoveredEmoji, setHoveredEmoji] = useState(null);
+
     return (
-      <div className='absolute  bottom-2 flex bg-white rounded-lg text-xl shadow-2xl p-1 z-10'>
+      <div className='absolute bottom-2 flex bg-white rounded-lg text-xl shadow-2xl p-1 z-10'>
         {reactionOptions.map((option) => (
           <div
             key={option.label}
-            className='cursor-pointer  hover:bottom-3 hover:bg-gray-100 rounded p-2'
+            className={`relative cursor-pointer hover:bottom-3 hover:bg-transparent   rounded p-2 transform transition-transform ${
+              hoveredEmoji === option.emoji ? "scale-100 opacity-150" : ""
+            }`}
             onClick={() => onSelectReaction(option)}
+            onMouseEnter={() => setHoveredEmoji(option.emoji)}
+            onMouseLeave={() => setHoveredEmoji(null)}
           >
             {option.emoji}
+            {hoveredEmoji === option.emoji && (
+              <div className='absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded-lg'>
+                {option.label}
+              </div>
+            )}
           </div>
         ))}
       </div>
     );
   };
 
-  const Reaction = ({ Icons, title, onClick, isActive }) => {
+  const Reaction = ({
+    Icons,
+    title,
+    onClick,
+    isActive,
+    onMouseLeave,
+    onMouseEnter,
+  }) => {
     return (
       <div
         className={`flex w-full justify-center p-2 sm:p-4 my-2 text-gray-600 hover:bg-gray-100 cursor-pointer gap-1 md:gap-2 items-center sm:text-sm md:text-md font-bold rounded-lg ${
           isActive ? "text-blue-500" : ""
         }`}
         onClick={onClick}
-        onMouseEnter={handleReactionHover}
-        // onMouseLeave={handleReactionLeave}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
         <Icons className={`w-[20px] sm:w-[30px] md:w-[25px] h-auto`} />
         <span className='hidden sm:flex'>{title}</span>
@@ -180,9 +200,9 @@ const Post = () => {
           </div>
           <div className='flex px-2 gap-2'>
             <h6>
-              • {reactionCounts.Love} Love • {reactionCounts.Celebrate}{" "}
-              Celebrate • {reactionCounts.Support} Support •{" "}
-              {reactionCounts.Insightful} Insightful
+              • {reactionCounts.Like} Like • {reactionCounts.Love} Love •{" "}
+              {reactionCounts.Celebrate} Celebrate • {reactionCounts.Support}{" "}
+              Support • {reactionCounts.Insightful} Insightful
             </h6>
           </div>
         </div>
@@ -191,8 +211,10 @@ const Post = () => {
           <Reaction
             Icons={SlLike}
             title={"Like"}
-            onClick={() => onSelectReaction("Like")}
+            onClick={() => handleReactionSelect({ label: "Like", emoji: "👍" })}
             isActive={isLiked}
+            onMouseEnter={handleReactionHover}
+            onMouseLeave={handleReactionLeave}
           />
           <Reaction Icons={FaRegComment} title={"Comment"} />
           <Reaction Icons={BiRepost} title={"Repost"} />
