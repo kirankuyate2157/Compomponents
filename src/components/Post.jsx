@@ -3,15 +3,30 @@ import LinesEllipsis from "react-lines-ellipsis";
 
 import myphoto from "./../assets/myphoto.jpg";
 import { SlLike, SlOptions } from "react-icons/sl";
-import { FaRegComment, FaShare } from "react-icons/fa";
+import { FaRegComment, FaShare, FaHandHoldingHeart } from "react-icons/fa";
 import { BiRepost } from "react-icons/bi";
+import { TbBulbFilled } from "react-icons/tb";
+import { AiFillHeart } from "react-icons/ai";
+import { MdCelebration } from "react-icons/md";
 
+const Icons = [
+  { Icon: SlLike, label: "Like", color: "blue" },
+  { Icon: AiFillHeart, label: "Love", color: "green" },
+  { Icon: MdCelebration, label: "Celebrate", color: "green" },
+  { Icon: FaHandHoldingHeart, label: "Support", color: "green" },
+  { Icon: TbBulbFilled, label: "Insightful", color: "green" },
+];
 const Post = () => {
   const [showFullText, setShowFullText] = useState(false);
   const [reactionOptionsVisible, setReactionOptionsVisible] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [selectedReaction, setSelectedReaction] = useState(null);
+  const [react, setReact] = useState({
+    label: "Like",
+    icon: SlLike,
+    color: "blue",
+  });
   const [reactionCounts, setReactionCounts] = useState({
     Like: 0,
     Love: 0,
@@ -20,8 +35,30 @@ const Post = () => {
     Insightful: 0,
   });
 
+  useEffect(() => {
+    const highestCountReaction = Object.entries(reactionCounts).reduce(
+      (prev, [label, count]) => {
+        if (count > prev.count) {
+          return { label, count };
+        }
+        return prev;
+      },
+      { label: "Like", count: 0 }
+    );
+
+    const { label, count } = highestCountReaction;
+    const selectedIcon =
+      Icons.find((icon) => icon.label === label)?.Icon || SlLike;
+    const selectedColor =
+      Icons.find((icon) => icon.label === label)?.color || "gray";
+
+    setReact({ label, icon: selectedIcon, color: selectedColor });
+    setLikeCount((prevLikeCount) => prevLikeCount + count);
+
+    console.log("react color: ", react.color);
+  }, [reactionCounts]);
+
   const handleLikeClick = () => {
-    setIsLiked((prevIsLiked) => !prevIsLiked);
     setLikeCount((prevLikeCount) =>
       prevIsLiked
         ? prevLikeCount - reactionCounts.Like
@@ -32,20 +69,35 @@ const Post = () => {
 
   const handleReactionSelect = (reaction) => {
     if (selectedReaction === reaction) {
+      // If the same reaction is selected, clear the selection
       setSelectedReaction(null);
+
       setReactionCounts((prevCounts) => ({
         ...prevCounts,
-        [reaction.label]: prevCounts[reaction.label] - 1,
+        [reaction.label]: 0, // Set the count of the selected reaction to 0
       }));
       setLikeCount((prevLikeCount) => prevLikeCount - 1);
     } else {
+      // If a different reaction is selected, update the selection
       setSelectedReaction(reaction);
       setReactionCounts((prevCounts) => ({
-        ...prevCounts,
-        [reaction.label]: prevCounts[reaction.label] + 1,
+        // Set the count of the selected reaction to 1 and all others to 0
+        Like: reaction.label === "Like" ? 1 : 0,
+        Love: reaction.label === "Love" ? 1 : 0,
+        Celebrate: reaction.label === "Celebrate" ? 1 : 0,
+        Support: reaction.label === "Support" ? 1 : 0,
+        Insightful: reaction.label === "Insightful" ? 1 : 0,
       }));
-      setLikeCount((prevLikeCount) => prevLikeCount + 1);
+
+      setLikeCount(
+        (prevLikeCount) =>
+          // Adjust the like count based on the selected reaction
+          prevLikeCount + (selectedReaction ? 0 : 1)
+      );
     }
+    setIsLiked(!isLiked);
+    console.log("liked : ", isLiked);
+
     setReactionOptionsVisible(false);
   };
 
@@ -69,7 +121,7 @@ const Post = () => {
       { label: "Love", emoji: "❤️" },
       { label: "Celebrate", emoji: "🎉" },
       { label: "Support", emoji: "🤝" },
-      { label: "Insightful", emoji: "🧠" },
+      { label: "Insightful", emoji: "💡" },
     ];
 
     const [hoveredEmoji, setHoveredEmoji] = useState(null);
@@ -103,13 +155,14 @@ const Post = () => {
     title,
     onClick,
     isActive,
+    color,
     onMouseLeave,
     onMouseEnter,
   }) => {
     return (
       <div
-        className={`flex w-full justify-center p-2 sm:p-4 my-2 text-gray-600 hover:bg-gray-100 cursor-pointer gap-1 md:gap-2 items-center sm:text-sm md:text-md font-bold rounded-lg ${
-          isActive ? "text-blue-500" : ""
+        className={`flex w-full justify-center p-2 sm:p-4 my-2  hover:bg-gray-100 cursor-pointer gap-1 md:gap-2 items-center sm:text-sm md:text-md font-bold rounded-lg ${
+          isActive ? `text-${color}-500` : "text-gray-600"
         }`}
         onClick={onClick}
         onMouseEnter={onMouseEnter}
@@ -166,9 +219,11 @@ const Post = () => {
       <div className='mx-2 md:mx-5 text-gray-600'>
         <div className='flex justify-between text-xs p-1'>
           <div className='flex gap-1 relative'>
-            <div className='flex items-center cursor-pointer'>
-              {likeCount > 0 && (
-                <span className='bg-green-300 border rounded-full '>👍</span>
+            <div className='flex items-center cursor-pointer ml-2'>
+              {reactionCounts.Like > 0 && (
+                <span className='bg-green-300 border rounded-full ml-[-8px] '>
+                  👍
+                </span>
               )}
               {reactionCounts.Love > 0 && (
                 <span className='bg-red-700 border rounded-full ml-[-8px]'>
@@ -187,7 +242,7 @@ const Post = () => {
               )}
               {reactionCounts.Insightful > 0 && (
                 <span className='bg-purple-500 border border-gray-300 rounded-full ml-[-8px]'>
-                  🧠
+                  💡
                 </span>
               )}
             </div>
@@ -199,20 +254,17 @@ const Post = () => {
             </div>
           </div>
           <div className='flex px-2 gap-2'>
-            <h6>
-              • {reactionCounts.Like} Like • {reactionCounts.Love} Love •{" "}
-              {reactionCounts.Celebrate} Celebrate • {reactionCounts.Support}{" "}
-              Support • {reactionCounts.Insightful} Insightful
-            </h6>
+            <h6> 3 comments • 2 reposts </h6>
           </div>
         </div>
         <hr className='mt-1' />
         <div className='flex w-full mb-2 '>
           <Reaction
-            Icons={SlLike}
-            title={"Like"}
+            Icons={react.icon}
+            title={react.label}
             onClick={() => handleReactionSelect({ label: "Like", emoji: "👍" })}
-            isActive={isLiked}
+            isActive={isLiked === true}
+            color={react.color ? react.color : "Yellow"}
             onMouseEnter={handleReactionHover}
             onMouseLeave={handleReactionLeave}
           />
