@@ -8,6 +8,7 @@ import { BiRepost } from "react-icons/bi";
 import { TbBulbFilled } from "react-icons/tb";
 import { AiFillHeart } from "react-icons/ai";
 import { MdCelebration } from "react-icons/md";
+import Comments from "./Comments";
 
 const Icons = [
   { Icon: SlLike, label: "Like", color: "blue" },
@@ -273,6 +274,7 @@ const Post = () => {
           <Reaction Icons={FaShare} title={"Send"} />
         </div>
       </div>
+      <Comments />
     </div>
   );
 };
