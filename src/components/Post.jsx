@@ -19,6 +19,7 @@ const Icons = [
 ];
 const Post = () => {
   const [showFullText, setShowFullText] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const [reactionOptionsVisible, setReactionOptionsVisible] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -269,12 +270,16 @@ const Post = () => {
             onMouseEnter={handleReactionHover}
             onMouseLeave={handleReactionLeave}
           />
-          <Reaction Icons={FaRegComment} title={"Comment"} />
+          <Reaction
+            Icons={FaRegComment}
+            title={"Comment"}
+            onClick={() => setShowComments(!showComments)}
+          />
           <Reaction Icons={BiRepost} title={"Repost"} />
           <Reaction Icons={FaShare} title={"Send"} />
         </div>
       </div>
-      <Comments />
+      {showComments && <Comments />}
     </div>
   );
 };
