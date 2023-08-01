@@ -4,73 +4,141 @@ import LinesEllipsis from "react-lines-ellipsis";
 
 const Comments = () => {
   const [showFullText, setShowFullText] = useState(false);
-  const [reactionOptionsVisible, setReactionOptionsVisible] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [selectedReaction, setSelectedReaction] = useState(null);
   const [react, setReact] = useState({
     label: "Like",
   });
-  const [reactionCounts, setReactionCounts] = useState({
-    Like: 0,
-    Love: 0,
-    Celebrate: 0,
-    Support: 0,
-    Insightful: 0,
-  });
 
-  const handleReactionSelect = (reaction) => {
-    if (selectedReaction === reaction) {
-      // If the same reaction is selected, clear the selection
-      setSelectedReaction(null);
+  const [comments, setComments] = useState([
+    {
+      id: 1,
+      user: "Kiran Kuyate",
+      handle: `SDE aspirants 💫 | final yr | web dev (MERN) | DS | DSA | AI
+      enthusiast | 2x100DaysOfCode`,
+      avatar: "https://avatars.githubusercontent.com/u/84271800?v=4",
+      time: new Date("2023-07-20T10:13:00"),
+      content:
+        "I'm happy to share that I have obtained a new certification of Advanced Software Engineering Virtual Program of Walmart Global Tech, it was provided by Forage. #walmartglobaltech #theforage #softwareengineer #virtualexperience",
+      likes: {
+        Like: 2,
+        Love: 0,
+        Celebrate: 0,
+        Support: 0,
+        Insightful: 0,
+      },
+      totalLikes: 2,
+      reactionOptionsVisible: false,
+    },
+    {
+      id: 2,
+      user: "Jane Smith",
+      handle: `SDE aspirants 💫 | final yr | web dev (MERN) | DS | DSA | AI
+      enthusiast | 2x100DaysOfCode`,
+      avatar: "https://avatars.githubusercontent.com/u/84271800?v=4",
+      time: new Date("2023-07-28T12:34:56"),
+      content: "Congratulations! That's amazing!",
+      likes: {
+        Like: 0,
+        Love: 0,
+        Celebrate: 0,
+        Support: 1,
+        Insightful: 0,
+      },
+      totalLikes: 1,
+      reactionOptionsVisible: false,
+    },
+    // Add more sample comments here...
+  ]);
 
-      setReactionCounts((prevCounts) => ({
-        ...prevCounts,
-        [reaction.label]: 0, // Set the count of the selected reaction to 0
-      }));
+  const updateTotalLikes = () => {
+    setComments((prevComments) =>
+      prevComments.map((comment) => {
+        const totalLikes = Object.values(comment.likes).reduce(
+          (total, count) => total + count,
+          0
+        );
+        return { ...comment, totalLikes };
+      })
+    );
+  };
 
-      setLikeCount(
-        (prevLikeCount) => prevLikeCount + (selectedReaction ? 0 : 1)
+  const handleReactionSelect = (commentId, reaction) => {
+    setComments((prevComments) =>
+      prevComments.map((comment) => {
+        if (comment.id === commentId) {
+          const currentLikes = comment.likes[reaction.label];
+          const updatedComment = {
+            ...comment,
+            likes: {
+              ...comment.likes,
+              [reaction.label]:
+                currentLikes + (selectedReaction === reaction ? -1 : 1),
+            },
+          };
+          return updatedComment;
+        }
+        return comment;
+      })
+    );
+
+    setSelectedReaction((prevReaction) =>
+      prevReaction === reaction ? null : reaction
+    );
+
+    updateTotalLikes(); // Recalculate and update totalLikes for each comment
+  };
+
+  const handleReactionHover = (commentId) => {
+    setComments((prevComments) =>
+      prevComments.map((comment) =>
+        comment.id === commentId
+          ? { ...comment, reactionOptionsVisible: true }
+          : comment
+      )
+    );
+  };
+
+  const handleReactionLeave = (commentId) => {
+    setTimeout(() => {
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment.id === commentId
+            ? { ...comment, reactionOptionsVisible: false }
+            : comment
+        )
       );
+    }, 2000); // 2 seconds delay
+  };
+  const formatTimeDifference = (commentTime) => {
+    const currentTime = new Date();
+    const commentTimeObj = new Date(commentTime);
+
+    const timeDifference = currentTime - commentTimeObj;
+    const seconds = Math.floor(timeDifference / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
+
+    if (years > 0) {
+      return `${years} ${years === 1 ? "year" : "years"}`;
+    } else if (months > 0) {
+      return `${months} ${months === 1 ? "month" : "months"}`;
+    } else if (days > 0) {
+      return `${days} ${days === 1 ? "day" : "days"}`;
+    } else if (hours > 0) {
+      return `${hours} hr`;
+    } else if (minutes > 0) {
+      return `${minutes} min`;
     } else {
-      // If a different reaction is selected, update the selection
-      setSelectedReaction(reaction);
-      setReactionCounts(() => ({
-        // Set the count of the selected reaction to 1 and all others to 0
-        Like: reaction.label === "Like" ? 1 : 0,
-        Love: reaction.label === "Love" ? 1 : 0,
-        Celebrate: reaction.label === "Celebrate" ? 1 : 0,
-        Support: reaction.label === "Support" ? 1 : 0,
-        Insightful: reaction.label === "Insightful" ? 1 : 0,
-      }));
-
-      setLikeCount(
-        (prevLikeCount) =>
-          // Adjust the like count based on the selected reaction
-          prevLikeCount + (selectedReaction ? 0 : 1)
-      );
-    }
-    setIsLiked(!isLiked);
-    console.log("liked : ", isLiked);
-
-    setReactionOptionsVisible(false);
-  };
-
-  const handleReactionHover = () => {
-    if (!isLiked) {
-      setReactionOptionsVisible(true);
+      return `${seconds} sec`;
     }
   };
 
-  const handleReactionLeave = () => {
-    if (!isLiked) {
-      setTimeout(() => {
-        setReactionOptionsVisible(false);
-      }, 2000); // 2 seconds delay
-    }
-  };
-
-  const ReactionOptions = ({ onSelectReaction }) => {
+  const ReactionOptions = ({ commentId, onSelectReaction }) => {
     const reactionOptions = [
       { label: "Like", emoji: "👍" },
       { label: "Love", emoji: "❤️" },
@@ -89,7 +157,7 @@ const Comments = () => {
             className={`relative cursor-pointer hover:bottom-3 hover:bg-transparent   rounded p-2 transform transition-transform ${
               hoveredEmoji === option.emoji ? "scale-100 opacity-150" : ""
             }`}
-            onClick={() => onSelectReaction(option)}
+            onClick={() => onSelectReaction(commentId, option)}
             onMouseEnter={() => setHoveredEmoji(option.emoji)}
             onMouseLeave={() => setHoveredEmoji(null)}
           >
@@ -106,28 +174,6 @@ const Comments = () => {
   };
 
   const [commentInput, setCommentInput] = useState("");
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      user: "Kiran Kuyate",
-      handle: `SDE aspirants 💫 | final yr | web dev (MERN) | DS | DSA | AI
-      enthusiast | 2x100DaysOfCode`,
-      avatar: "https://avatars.githubusercontent.com/u/84271800?v=4",
-      time: "13m",
-      content:
-        "I'm happy to share that I have obtained a new certification of Advanced Software Engineering Virtual Program of Walmart Global Tech, it was provided by Forage. #walmartglobaltech #theforage #softwareengineer #virtualexperience",
-    },
-    {
-      id: 2,
-      user: "Jane Smith",
-      handle: `SDE aspirants 💫 | final yr | web dev (MERN) | DS | DSA | AI
-      enthusiast | 2x100DaysOfCode`,
-      avatar: "https://avatars.githubusercontent.com/u/84271800?v=4",
-      time: "2hr",
-      content: "Congratulations! That's amazing!",
-    },
-    // Add more sample comments here...
-  ]);
 
   const handlePostComment = () => {
     if (commentInput.trim() !== "") {
@@ -136,8 +182,16 @@ const Comments = () => {
         user: "John Doe", // Replace with the actual user name
         handle: `SDE aspirants 💫 | final yr | web dev (MERN) | DS | DSA | AI\nenthusiast | 2x100DaysOfCode`, // Replace with the actual user handle
         avatar: "https://avatars.githubusercontent.com/u/12345678?v=4", // Replace with the actual user avatar URL
-        time: "just now", // Replace with the actual timestamp
+        time: new Date(), // Replace with the actual timestamp
         content: commentInput,
+        likes: {
+          Like: 0,
+          Love: 0,
+          Celebrate: 0,
+          Support: 0,
+          Insightful: 0,
+        },
+        reactionOptionsVisible: false,
       };
       setComments((prevComments) => [newComment, ...prevComments]);
       setCommentInput("");
@@ -191,7 +245,9 @@ const Comments = () => {
                       <span>(He/Him)</span>
                     </div>
                     <div className='flex items-center gap-1 md:gap-2 text-xs md:text-sm mr-1'>
-                      <h6 className='md:text-xs'>{comment.time}</h6>
+                      <h6 className='md:text-xs'>
+                        {formatTimeDifference(comment.time)}
+                      </h6>
                       <SlOptions />
                     </div>
                   </div>
@@ -213,48 +269,55 @@ const Comments = () => {
                   </p>
                 </div>
                 <div className='ml-2 flex gap-1 justify-start items-center relative'>
-                  {reactionOptionsVisible && (
-                    <ReactionOptions onSelectReaction={handleReactionSelect} />
+                  {comment.reactionOptionsVisible && (
+                    <ReactionOptions
+                      commentId={comment.id}
+                      onSelectReaction={handleReactionSelect}
+                    />
                   )}
                   <span
                     className={`${isLiked ? "text-blue-500" : ""}`}
-                    onClick={() => handleReactionSelect({ label: "Like" })}
-                    onMouseEnter={handleReactionHover}
-                    onMouseLeave={handleReactionLeave}
+                    onClick={() =>
+                      handleReactionSelect(comment.id, { label: "Like" })
+                    }
+                    onMouseEnter={() => handleReactionHover(comment.id)}
+                    onMouseLeave={() => handleReactionLeave(comment.id)}
                   >
                     {react.label}
                   </span>
                   •
                   <span className='p-1'>
                     <span className='text-[0.50rem] rounded-full'>
-                      {reactionCounts.Like > 0 && (
+                      {comment.likes.Like > 0 && (
                         <span className='bg-green-300 border rounded-full ml-[-8px] '>
                           👍
                         </span>
                       )}
-                      {reactionCounts.Love > 0 && (
+                      {comment.likes.Love > 0 && (
                         <span className='bg-red-700 border rounded-full ml-[-8px]'>
                           ❤️
                         </span>
                       )}
-                      {reactionCounts.Celebrate > 0 && (
+                      {comment.likes.Celebrate > 0 && (
                         <span className='bg-yellow-500 border border-gray-300 rounded-full ml-[-8px]'>
                           🎉
                         </span>
                       )}
-                      {reactionCounts.Support > 0 && (
+                      {comment.likes.Support > 0 && (
                         <span className='bg-blue-500 border border-gray-300 rounded-full ml-[-8px]'>
                           🤝
                         </span>
                       )}
-                      {reactionCounts.Insightful > 0 && (
+                      {comment.likes.Insightful > 0 && (
                         <span className='bg-purple-500 border border-gray-300 rounded-full ml-[-8px]'>
                           💡
                         </span>
                       )}
                     </span>
                   </span>
-                  <span>{likeCount > 0 ? likeCount : ""}</span>
+                  <span>
+                    {comment.totalLikes > 0 ? comment.totalLikes : ""}
+                  </span>
                 </div>
               </div>
             </div>
